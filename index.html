@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title></title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <input type="checkbox" id="options_open">
+    <label for="options_open">
+    </label>
+    <div class="options">
+      <label>Iterations (<span id="it-report">...</span>)</label>
+      <div>
+        <input type="range" min="4" max="2048" step="1" value="256" id="rangeslider">
+      </div>
+    </div>
+  </body>
+
+  <script id="2d-vertex-shader" type="x-shader/x-vertex">
+   attribute vec2 a_position;
+
+   void main() {
+     gl_Position = vec4(a_position, 0, 1);
+   }
+  </script>
+
+  <script id="2d-fragment-shader" type="x-shader/x-fragment">
+   precision highp float;
+   #define ITERATIONS [[ITERATIONS]]
+
+   uniform vec2 center;
+   uniform float user_scale;
+   uniform float canvas_resolution;
+   uniform int steps;
+
+   vec2 cmul(vec2 a, vec2 b) {
+     return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+   }
+
+   float magnitude(vec2 v) {
+     return sqrt(v.x * v.x + v.y * v.y);
+   }
+
+   vec3 val_at(vec2 pos) {
+     vec2 z = vec2(0., 0.);
+     for (int i = 0; i < ITERATIONS; i++) {
+       z = cmul(z, z) + pos;
+       if (magnitude(z) > 4.) {
+         return vec3(sqrt(float(i + 1) - log(log(magnitude(z))) / log(2.)));
+       }
+     }
+     return vec3(z, z.x + z.y) * 5.;
+   }
+
+   void main() {
+     vec3 calculated = val_at((gl_FragCoord.xy / canvas_resolution - 0.5) * user_scale + center);
+     gl_FragColor = vec4(sin(calculated * 0.5 + float(steps) * 0.01) / 2. + 0.5, 1.0);
+   }
+  </script>
+
+  <script src="./js/fracs.js"></script>
+  <script>
+   window.addEventListener('load', function() {
+     new Fracs().init({
+       resolution: 1024,
+       center: [
+         0.2510190964592524,
+        -0.00001057574347854329
+       ]});
+   });
+  </script>
+</html>
