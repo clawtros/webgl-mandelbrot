@@ -94,7 +94,7 @@ Fracs.prototype = {
     );
 
     this.recompile({
-      iterations: 256
+      iterations: 64 
     })
 
     this.scale = 10;

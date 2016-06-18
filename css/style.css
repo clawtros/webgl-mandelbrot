@@ -39,7 +39,8 @@ label[for="options_open"]:after {
 
 #c {
     margin: auto;
-    max-width: 100%;
+    height: 100vmin;
+    width: 100vmin;
 }
 
 #options_open {
